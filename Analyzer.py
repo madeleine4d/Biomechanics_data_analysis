@@ -165,9 +165,11 @@ while loop:
             case 't-test':
                 subcommand = input('Please enter the names of the columns you would like to compare separated with commas:\n').split(', ')
                 TTest(DATA[subcommand[0]].dropna().tolist(), DATA[subcommand[1]].dropna().tolist(), subcommand[0], subcommand[1])
-            case 'addSubj':
+            case 'addSubj': # TODO better way to do this?
                 subcommand = input('Please enter the name of the participant you would like to add followed by the MVC, DLS, and SLS as a comma sparated list:\n').split(', ')
-                for path in subcommand[1:3]: AddRun(currentCommand, path, subcommand[0])
+                AddRun('MCV', subcommand[1], subcommand[0])
+                AddRun('DLS', subcommand[2], subcommand[0])
+                AddRun('SLS', subcommand[3], subcommand[0])
                 Normalize('-DLS')
                 Normalize('-SLS')
             case 'export':
