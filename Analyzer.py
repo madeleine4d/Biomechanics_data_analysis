@@ -167,11 +167,11 @@ while loop:
                 TTest(DATA[subcommand[0]].dropna().tolist(), DATA[subcommand[1]].dropna().tolist(), subcommand[0], subcommand[1])
             case 'addSubj': # TODO better way to do this?
                 subcommand = input('Please enter the name of the participant you would like to add followed by the MVC, DLS, and SLS as a comma sparated list:\n').split(', ')
-                AddRun('MCV', subcommand[1], subcommand[0])
+                AddRun('MVC', subcommand[1], subcommand[0])
                 AddRun('DLS', subcommand[2], subcommand[0])
                 AddRun('SLS', subcommand[3], subcommand[0])
-                Normalize('-DLS')
-                Normalize('-SLS')
+                Normalize('DLS')
+                Normalize('SLS')
             case 'export':
                 Export(DATA, input('Please enter the path and file name you would like: \n'))
             case 'help':
