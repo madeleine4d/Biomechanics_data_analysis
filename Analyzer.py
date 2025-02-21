@@ -57,7 +57,12 @@ def Normalize(tack):
     for i in (i for i in DATA.index if pd.isnull(DATA.loc[i, tack + ' %'])):
         DATA.loc[i, tack + ' %'] = DATA.loc[i, tack + ' mean'] / DATA.loc[i, 'MVC max']
         
-
+def TTest(array1: list, array2:list, arrayname1: str, arrayname2: str):
+    tTest = stats.ttest_ind(array1, array2)
+    print (tTest)
+    tTestString = 'statistic: ' + str(getattr(tTest, 'statistic')) + '\np-value: ' + str(getattr(tTest, 'pvalue')) + '\ndegrees of freedom: ' + str(getattr(tTest, 'df'))
+    with open('t-test_' + arrayname1.replace(' ', '_') + '_vs_' + arrayname2.replace(' ', '_') + '.txt', 'w') as text_file:
+        text_file.write(tTestString)
 
 #Fills a cell at a particular index (participant name) and column with a given value. Also takes a bool to allow the function to overwrite existing cell value
 def AddEntry(participant, valueName, value, YNrewrite):
@@ -151,11 +156,8 @@ while loop:
             case 'normalize -DLS' | 'normalize -SLS':
                 Normalize(currentCommand.split('-')[-1])
             case 't-test':
-                tTest = stats.ttest_ind(DATA['DLS %'].dropna().tolist(), DATA['SLS mean'].dropna().tolist())
-                print (tTest)
-                tTestString = 'statistic:' + str(getattr(tTest, 'statistic')) + '\np-value:' + str(getattr(tTest, 'pvalue')) + '\ndegrees of freedom:' + str(getattr(tTest, 'df'))
-                with open("t-test.txt", "w") as text_file:
-                    text_file.write(tTestString)
+                subcommand = input('please enter the names of the columns you would like to compare separated with commas:\n').split(', ')
+                TTest(DATA[subcommand[0]].dropna().tolist(), DATA[subcommand[1]].dropna().tolist(), subcommand[0], subcommand[1])
             case 'export':
                 Export(DATA, input('Please enter the path and file name you would like: \n'))
             case 'help':

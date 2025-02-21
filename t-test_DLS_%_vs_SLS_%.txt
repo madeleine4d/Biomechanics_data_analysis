@@ -1,0 +1,3 @@
+statistic: -1.3860167055549128e+16
+p-value: 1.6258384536125032e-64
+degrees of freedom: 4.0
