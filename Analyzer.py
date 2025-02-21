@@ -1,6 +1,5 @@
 # TODO
 # add a clear function
-# add color to text when needed
 
 #import required packages
 import pandas as pd
