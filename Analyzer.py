@@ -64,6 +64,7 @@ def TTest(array1: list, array2:list, arrayname1: str, arrayname2: str):
     with open('t-test_' + arrayname1.replace(' ', '_') + '_vs_' + arrayname2.replace(' ', '_') + '.txt', 'w') as text_file:
         text_file.write(tTestString)
 
+
 #Fills a cell at a particular index (participant name) and column with a given value. Also takes a bool to allow the function to overwrite existing cell value
 def AddEntry(participant, valueName, value, YNrewrite):
     global DATA
@@ -80,6 +81,53 @@ def AddEntry(participant, valueName, value, YNrewrite):
         DATA.loc[participant, valueName] = value
     if (YNrewrite):
             DATA.loc[participant, valueName] = value
+
+
+def AddRun(currentCommand, path, participant): # TODO clean this up
+    match currentCommand:
+        case 'MVC' | 'MVC -R'| 'DLS' | 'DLS -R' | 'SLS' | 'SLS -R':
+            tempData = FileMounter(path)
+            tempData = DataFormater(tempData)
+            match currentCommand:
+                case 'MVC':
+                    AddEntry(participant, 'MVC max', FindGreatestValue(tempData, 'mVs'), False)
+                case 'MVC -R':
+                    AddEntry(participant, 'MVC max', FindGreatestValue(tempData, 'mVs'), True)
+                case 'DLS':
+                    AddEntry(participant, 'DLS mean', FindAbsMean(tempData, 'mVs'), False)
+                case 'DLS -R':
+                    AddEntry(participant, 'DLS mean', FindAbsMean(tempData, 'mVs'), True)
+                case 'SLS':
+                    AddEntry(participant, 'SLS mean', FindAbsMean(tempData, 'mVs'), False)
+                case 'SLS -R':
+                    AddEntry(participant, 'SLS mean', FindAbsMean(tempData, 'mVs'), True)  
+        case 'MVC -M' | 'DLS -M' | 'SLS -M':
+            subcommand = input('Enter a comma separated list of paths to the ' 
+                               + currentCommand.split(' -')[0] 
+                               + ' files you would like to add followed a | and a comma separated list of the names belonging to each ' 
+                               + currentCommand.split(' -')[0] 
+                               + " in order. For example, '"
+                               + currentCommand.split(' -')[0]
+                               + '1.xlsx, '
+                               + currentCommand.split(' -')[0]
+                               + "2.xlsx | mark, bob': \n").split(' | ')
+            print(subcommand)
+            subpaths = subcommand[0].split(', ')
+            print(subpaths)
+            subnames = subcommand[1].split(', ')
+            print(subnames)
+            print(range(len(subpaths)))
+            for i in range(len(subpaths)):
+                tempData = FileMounter(subpaths[i])
+                tempData = DataFormater(tempData)
+                match currentCommand:
+                    case 'MVC -M':
+                        AddEntry(subnames[i], 'MVC max', FindGreatestValue(tempData, 'mVs'), False)
+                    case 'DLS -M':
+                        AddEntry(subnames[i], 'DLS mean', FindAbsMean(tempData, 'mVs'), False)
+                    case 'SLS -M':
+                        AddEntry(subnames[i], 'SLS mean', FindAbsMean(tempData, 'mVs'), False)
+
 
 #Prints a list of commands
 def PrintHelp():
@@ -109,55 +157,19 @@ while loop:
                 DATA = FileMounter(input('Ender the path to the file holding the data you are processing:\n'), True)                   
                 print ('file mounted')
                 print(DATA)
-            case 'MVC' | 'MVC -R'| 'DLS' | 'DLS -R' | 'SLS' | 'SLS -R':
-                tempData = FileMounter(input('Enter the path to the ' + currentCommand.split(' -')[0] + ' file you would like to add: \n'))
-                tempData = DataFormater(tempData)
-                participant = input('Enter the full name of the participant for whom you are adding a ' + currentCommand.split(' -')[0])
-                match currentCommand:
-                    case 'MVC':
-                        AddEntry(participant, 'MVC max', FindGreatestValue(tempData, 'mVs'), False)
-                    case 'MVC -R':
-                        AddEntry(participant, 'MVC max', FindGreatestValue(tempData, 'mVs'), True)
-                    case 'DLS':
-                        AddEntry(participant, 'DLS mean', FindAbsMean(tempData, 'mVs'), False)
-                    case 'DLS -R':
-                        AddEntry(participant, 'DLS mean', FindAbsMean(tempData, 'mVs'), True)
-                    case 'SLS':
-                        AddEntry(participant, 'SLS mean', FindAbsMean(tempData, 'mVs'), False)
-                    case 'SLS -R':
-                        AddEntry(participant, 'SLS mean', FindAbsMean(tempData, 'mVs'), True)
-
-            case 'MVC -M' | 'DLS -M' | 'SLS -M':
-                subcommand = input('Enter a comma separated list of paths to the ' 
-                                   + currentCommand.split(' -')[0] 
-                                   + ' files you would like to add followed a | and a comma separated list of the names belonging to each ' 
-                                   + currentCommand.split(' -')[0] 
-                                   + " in order. For example, '"
-                                   + currentCommand.split(' -')[0]
-                                   + '1.xlsx, '
-                                   + currentCommand.split(' -')[0]
-                                   + "2.xlsx | mark, bob': \n").split(' | ')
-                print(subcommand)
-                subpaths = subcommand[0].split(', ')
-                print(subpaths)
-                subnames = subcommand[1].split(', ')
-                print(subnames)
-                print(range(len(subpaths)))
-                for i in range(len(subpaths)):
-                    tempData = FileMounter(subpaths[i])
-                    tempData = DataFormater(tempData)
-                    match currentCommand:
-                        case 'MVC -M':
-                            AddEntry(subnames[i], 'MVC max', FindGreatestValue(tempData, 'mVs'), False)
-                        case 'DLS -M':
-                            AddEntry(subnames[i], 'DLS mean', FindAbsMean(tempData, 'mVs'), False)
-                        case 'SLS -M':
-                            AddEntry(subnames[i], 'SLS mean', FindAbsMean(tempData, 'mVs'), False)
+            case 'MVC' | 'MVC -R'| 'DLS' | 'DLS -R' | 'SLS' | 'SLS -R'|'MVC -M' | 'DLS -M' | 'SLS -M':
+                AddRun(currentCommand, path=input('Enter the path to the ' + currentCommand.split(' -')[0] + ' file you would like to add: \n'), 
+                       participant=input('Enter the full name of the participant for whom you are adding a ' + currentCommand.split(' -')[0]))
             case 'normalize -DLS' | 'normalize -SLS':
                 Normalize(currentCommand.split('-')[-1])
             case 't-test':
-                subcommand = input('please enter the names of the columns you would like to compare separated with commas:\n').split(', ')
+                subcommand = input('Please enter the names of the columns you would like to compare separated with commas:\n').split(', ')
                 TTest(DATA[subcommand[0]].dropna().tolist(), DATA[subcommand[1]].dropna().tolist(), subcommand[0], subcommand[1])
+            case 'addSubj':
+                subcommand = input('Please enter the name of the participant you would like to add followed by the MVC, DLS, and SLS as a comma sparated list:\n').split(', ')
+                for path in subcommand[1:3]: AddRun(currentCommand, path, subcommand[0])
+                Normalize('-DLS')
+                Normalize('-SLS')
             case 'export':
                 Export(DATA, input('Please enter the path and file name you would like: \n'))
             case 'help':
