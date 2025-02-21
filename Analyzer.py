@@ -1,18 +1,20 @@
-# TODO
-# add a clear function
+# TODO: 
+# add a ClearCell() function
+#
 
 #import required packages
 import pandas as pd
 from colorama import Fore, Back, Style
 from pathlib import Path
 import traceback as tb
+from scipy import stats
 
 #create main dataframe that will hold data for all participant. This will be replaced by an existing file is 'mount' command by user
 DATA = pd.DataFrame(columns=['MVC max', 'DLS mean', 'SLS mean', 'DLS %', 'SLS %'], index=['Name'])
 
 #export DATA into a csv. User must include ".csv". can make folders if path specified does not exist
-def export(data):
-    path = Path(input('Please enter the path and file name you would like: \n'))
+def Export(data, path):
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     data.to_csv(path)
 
@@ -54,6 +56,8 @@ def FindAbsMean(dataframe, columnName):
 def Normalize(tack):
     for i in (i for i in DATA.index if pd.isnull(DATA.loc[i, tack + ' %'])):
         DATA.loc[i, tack + ' %'] = DATA.loc[i, tack + ' mean'] / DATA.loc[i, 'MVC max']
+        
+
 
 #Fills a cell at a particular index (participant name) and column with a given value. Also takes a bool to allow the function to overwrite existing cell value
 def AddEntry(participant, valueName, value, YNrewrite):
@@ -146,9 +150,14 @@ while loop:
                             AddEntry(subnames[i], 'SLS mean', FindAbsMean(tempData, 'mVs'), False)
             case 'normalize -DLS' | 'normalize -SLS':
                 Normalize(currentCommand.split('-')[-1])
-
+            case 't-test':
+                tTest = stats.ttest_ind(DATA['DLS %'].dropna().tolist(), DATA['SLS mean'].dropna().tolist())
+                print (tTest)
+                tTestString = 'statistic:' + str(getattr(tTest, 'statistic')) + '\np-value:' + str(getattr(tTest, 'pvalue')) + '\ndegrees of freedom:' + str(getattr(tTest, 'df'))
+                with open("t-test.txt", "w") as text_file:
+                    text_file.write(tTestString)
             case 'export':
-                export(DATA)
+                Export(DATA, input('Please enter the path and file name you would like: \n'))
             case 'help':
                 PrintHelp()
             case 'show':
