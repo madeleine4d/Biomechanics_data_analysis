@@ -8,6 +8,7 @@ from colorama import Fore, Back, Style
 from pathlib import Path
 import traceback as tb
 from scipy import stats
+import numpy as np
 
 #create main dataframe that will hold data for all participant. This will be replaced by an existing file is 'mount' command by user
 DATA = pd.DataFrame(columns=['MVC max', 'DLS mean', 'SLS mean', 'DLS %', 'SLS %'], index=['Name'])
@@ -172,6 +173,18 @@ while loop:
                 AddRun('SLS', subcommand[3], subcommand[0])
                 Normalize('DLS')
                 Normalize('SLS')
+            case 'clear -C' | 'clear -P':
+                subcommand = currentCommand.split('-')[-1]
+                match subcommand:
+                    case'C': 
+                        pos = input('enter the the participant name and column of the cell you want to erase separated by a comma:\n').split(', ')
+                        DATA.loc[pos[0], pos[1]] = np.NaN
+                        print(DATA.loc[pos[0], pos[1]] + 'was removed')
+                    case 'P': 
+                        pos = input('enter the participants name you want to remove:\n')
+                        DATA = DATA.drop(pos, axis=0)
+                        print('column' + pos + 'was removed')
+                        
             case 'export':
                 Export(DATA, input('Please enter the path and file name you would like: \n'))
             case 'help':
