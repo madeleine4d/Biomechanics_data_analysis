@@ -5,4 +5,4 @@ This is a basic program for analyzing ADInstruments PowerLab 15T LabChart output
 #### Files included:
 - Analyzer.py: this is the actual script. after reviewing the code just run it to get started.
 - MVC, DLS, SLS files: these are sample data files.
-- data.csv: this is the data from out biomechanics project.
+- data.csv: this is the data from our biomechanics project.
